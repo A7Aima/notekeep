@@ -99,6 +99,49 @@ class _HomeScreenState extends BaseState<HomeScreen> {
                 },
                 child: Dismissible(
                   key: ValueKey(note.id),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) {
+                    if (direction == DismissDirection.endToStart) {
+                      _store.deleteNotes(note.id).then((value) {
+                        _store.isLoading = false;
+                        if (_store.errorMessage != null) {
+                          toastMessage(_store.errorMessage);
+                        } else {
+                          getNotes();
+                        }
+                      });
+                    }
+                  },
+                  confirmDismiss: (direction) async {
+                    bool isDissmised = false;
+                    if (direction == DismissDirection.endToStart) {
+                      await showDialog(
+                        context: context,
+                        builder: (ctxt) {
+                          return AlertDialog(
+                            title: Text(
+                                "Are u sure u want to delete ${note.title}"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  isDissmised = true;
+                                  Navigator.pop(ctxt);
+                                },
+                                child: Text("Yes"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(ctxt);
+                                },
+                                child: Text("No"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                    return isDissmised;
+                  },
                   child: Container(
                     width: double.maxFinite,
                     margin: EdgeInsets.only(
