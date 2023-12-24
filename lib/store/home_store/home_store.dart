@@ -25,4 +25,14 @@ class HomeStore {
       errorMessage = e.toString();
     }
   }
+
+  Future<void> deleteNotes(String id) async {
+    try {
+      await _notesService.deleteNotes(id: id);
+      errorMessage = null;
+    } catch (e) {
+      errorMessage =
+          "Delete notes can only applicable if online for maintaining synchronousity\n${e.toString()}";
+    }
+  }
 }
