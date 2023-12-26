@@ -97,7 +97,7 @@ class _NotesScreenState extends BaseState<NotesScreen> {
             ),
             _buildTextField(
               label: "Notes",
-              maxLines: 15,
+              maxLines: 25,
               controller: _notesController,
             ),
           ],
