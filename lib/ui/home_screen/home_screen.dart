@@ -26,6 +26,11 @@ class _HomeScreenState extends BaseState<HomeScreen> {
     super.initState();
     _store = HomeStore();
     _homeBloc = HomeBloc();
+  }
+
+  @override
+  void initializeWithContext(BuildContext context) {
+    super.initializeWithContext(context);
     Future.delayed(Duration(seconds: 2), () {
       _homeBloc.add(FetchNotes());
     });
@@ -197,7 +202,7 @@ class _HomeScreenState extends BaseState<HomeScreen> {
 
   Widget _buildLoading() {
     return Center(
-      child: CircularProgressIndicator(), // Or your custom loading widget
+      child: CircularProgressIndicator(),
     );
   }
 
@@ -227,7 +232,7 @@ class _HomeScreenState extends BaseState<HomeScreen> {
         ],
       ),
       body: Center(
-        child: Text(errorMessage), // Display error message
+        child: Text(errorMessage),
       ),
     );
   }
