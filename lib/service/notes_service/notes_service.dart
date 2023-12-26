@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:notekeep/const/config/config.dart';
 import 'package:notekeep/const/db_store/note_db_store/note_db_store.dart';
 import 'package:notekeep/const/local_data/local_data.dart';
+import 'package:notekeep/model/notes_model/notes_model.dart';
 
 class NotesService {
   final db = FirebaseFirestore.instance;
@@ -16,13 +17,19 @@ class NotesService {
   }
 
   Future<void> _saveAllNotes() async {
-    final List<dynamic> allList = [];
+    final List<Map<String, dynamic>> allList = [];
     await accessNotes().get().then((snapshot) async {
       await Future.forEach(snapshot.docs, (element) async {
-        allList.add(element.data());
+        final model = NotesModel.fromJson(element.data());
+        allList.add(model.toMap());
       });
     });
-    final offlineList = (_dbStore.getNotesList() as List<dynamic>?) ?? [];
+    print("object:  ${_dbStore.getNotesList().runtimeType.toString()}");
+    final offlineList = (_dbStore.getNotesList() as List)
+        .map((e) => NotesModel.fromJson(e).toMap())
+        .toList();
+
+    print("object Ahead:  ${offlineList.runtimeType.toString()}");
     allList.addAll(offlineList);
     await Future.forEach(allList, (element) async {
       await saveNotes(
