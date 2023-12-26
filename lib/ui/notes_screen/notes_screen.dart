@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:notekeep/model/notes_model/notes_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notekeep/store/notes_store/notes_bloc/notes_bloc.dart';
+import 'package:notekeep/store/notes_store/notes_event/notes_event.dart';
+import 'package:notekeep/store/notes_store/notes_state/notes_state.dart';
 import 'package:notekeep/store/notes_store/notes_store.dart';
 import 'package:notekeep/utility/mixin/base_mixin/base_mixin.dart';
 import 'package:uuid/uuid.dart';
@@ -12,9 +15,23 @@ class NotesScreen extends BasePageWidget {
 }
 
 class _NotesScreenState extends BaseState<NotesScreen> {
+  late NotesBloc _notesBloc;
   NotesStore _store = NotesStore();
   TextEditingController _titleController = TextEditingController();
   TextEditingController _notesController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _notesBloc = NotesBloc(_store);
+    _notesBloc.add(LoadNotes());
+  }
+
+  @override
+  void dispose() {
+    _notesBloc.close();
+    super.dispose();
+  }
 
   @override
   void initializeWithContext(BuildContext context) {
@@ -46,39 +63,53 @@ class _NotesScreenState extends BaseState<NotesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => _notesBloc,
+      child: BlocBuilder<NotesBloc, NotesState>(
+        builder: (context, state) {
+          if (state is NotesLoaded) {
+            _titleController.text = state.notesModel.title;
+            _notesController.text = state.notesModel.description;
+            return _buildScreen();
+          } else if (state is NotesError) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text('Notes Screen'),
+              ),
+              body: Center(
+                child: Text('Error: ${state.errorMessage}'),
+              ),
+            );
+          }
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Notes Screen'),
+            ),
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildScreen() {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Notes Screen"),
+          title: Text('Notes Screen'),
           actions: [
             TextButton.icon(
-              onPressed: _saveNotes,
+              onPressed: () => _saveNotes(context),
               icon: Icon(Icons.save),
-              label: _store.notesModel == null ? Text("Add") : Text("Update"),
+              label: _store.notesModel == null ? Text('Add') : Text('Update'),
             ),
           ],
         ),
         body: _buildBody(),
       ),
     );
-  }
-
-  void _saveNotes() {
-    if (!_store.validateNotes()) {
-      _store
-          .saveNotes(
-              savedModel: NotesModel(
-        id: _store.noteId ?? "",
-        description: _store.description ?? "",
-        title: _store.title ?? "",
-        updateDate: DateTime.now().toIso8601String(),
-      ))
-          .then((value) {
-        Navigator.pop(context);
-      });
-    } else {
-      toastMessage(_store.errorMessage);
-    }
   }
 
   Widget _buildBody() {
@@ -92,7 +123,7 @@ class _NotesScreenState extends BaseState<NotesScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildTextField(
-              label: "Title",
+              label: 'Title',
               controller: _titleController,
             ),
             _buildTextField(
@@ -107,8 +138,8 @@ class _NotesScreenState extends BaseState<NotesScreen> {
   }
 
   Widget _buildTextField({
-    String label = "",
-    String hint = "",
+    required String label,
+    String hint = '',
     TextEditingController? controller,
     int? maxLines = 1,
   }) {
@@ -121,8 +152,8 @@ class _NotesScreenState extends BaseState<NotesScreen> {
         controller: controller,
         maxLines: maxLines,
         decoration: InputDecoration(
-          label: Text("$label"),
-          hintText: "$hint",
+          labelText: label,
+          hintText: hint,
           alignLabelWithHint: false,
           border: OutlineInputBorder(
             borderSide: BorderSide.none,
@@ -132,9 +163,7 @@ class _NotesScreenState extends BaseState<NotesScreen> {
     );
   }
 
-  void toastMessage(String? message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message ?? "")),
-    );
+  void _saveNotes(BuildContext context) {
+    _notesBloc.add(SaveNotes());
   }
 }
