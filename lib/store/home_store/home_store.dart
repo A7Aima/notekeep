@@ -1,10 +1,8 @@
 import 'package:notekeep/model/notes_model/notes_model.dart';
 import 'package:notekeep/service/notes_service/notes_service.dart';
-import 'package:notekeep/service/user_service/user_service.dart';
 
 class HomeStore {
   NotesService _notesService = NotesService();
-  UserLocalService userService = UserLocalService();
 
   String? errorMessage;
 
@@ -23,6 +21,7 @@ class HomeStore {
       errorMessage = null;
     } catch (e) {
       errorMessage = e.toString();
+      print(errorMessage);
     }
   }
 
