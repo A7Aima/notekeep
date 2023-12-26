@@ -6,11 +6,11 @@ A new Flutter project.
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+this is the notes application 
+either u can signup using yop temp mail of use login testpeer1@yopmail.com with pass = test@123
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+add button available at the bottom of home page
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+there is title and note section where user can fill the details then add or update the same page when cicked on any one of the element in the list
+
+delete funtion  I Implemented as a slide from rt to left and will ask for confirmation
